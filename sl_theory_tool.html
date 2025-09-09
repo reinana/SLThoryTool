@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SL理論診断ツール</title>
+    <!-- Tailwind CSSをCDNで読み込み -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .bg-custom-blue {
+            background-color: #2563eb;
+        }
+        .text-custom-blue-dark {
+            color: #1e40af;
+        }
+        .shadow-custom {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding-top: 50px;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 24px;
+            border-radius: 1rem;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex items-center justify-center min-h-screen">
+    <div class="container bg-white p-6 sm:p-10 rounded-3xl shadow-lg border border-gray-200">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-custom-blue-dark mb-4">SL理論診断ツール</h1>
+        <p class="text-center text-gray-600 mb-8 max-w-lg mx-auto">
+            部下の能力と意欲、そしてご自身の行動パターンを評価することで、最適な組み合わせを診断します。
+        </p>
+
+        <!-- SL理論の概念説明セクション -->
+        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-200 mb-6">
+            <h2 class="text-xl font-bold mb-4 text-blue-800">SL理論とは？</h2>
+            
+            <!-- スライド1: 基本概念 -->
+            <div class="mb-6">
+                <h3 class="font-bold text-gray-800 text-lg mb-2">スライド1：基本概念と目的</h3>
+                <p class="text-gray-700 mb-2">
+                    SL理論（Situational Leadership）は、部下の<strong>成熟度</strong>（準備度）に合わせてリーダーシップ・スタイルを柔軟に変えるべきだという考え方です。
+                    一貫したスタイルが良いリーダーシップとは限りません。部下の状況を正しく見極め、最適なアプローチを取ることが目的です。
+                </p>
+                <p class="text-gray-700">
+                    リーダーの行動は、以下の2つの軸で分類されます。
+                </p>
+                <ul class="list-disc list-inside text-gray-700 ml-4">
+                    <li><strong>指示的行動</strong>（タスク行動）：何を、いつ、どこで、どのようにやるかを具体的に指示し、監督する行動。</li>
+                    <li><strong>支援的行動</strong>（関係行動）：部下の話を聞き、アイデアを交換し、励まし、意思決定に巻き込む行動。</li>
+                </ul>
+            </div>
+
+            <!-- スライド2 & 3: マトリックス図 -->
+            <div class="mb-6">
+                <h3 class="font-bold text-gray-800 text-lg mb-4">スライド2 & 3：成熟度とリーダーシップ・スタイルの関係</h3>
+                <div class="relative overflow-x-auto shadow-md rounded-lg">
+                    <table class="w-full text-sm text-left text-gray-500 rounded-lg">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">成熟度レベル</th>
+                                <th scope="col" class="px-6 py-3">部下の状態</th>
+                                <th scope="col" class="px-6 py-3">推奨スタイル</th>
+                                <th scope="col" class="px-6 py-3">リーダーの行動</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b hover:bg-gray-100">
+                                <td class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">M1（未熟）</td>
+                                <td class="px-6 py-4">能力が低く、意欲も低い</td>
+                                <td class="px-6 py-4 font-bold text-blue-600">S1（教示的）</td>
+                                <td class="px-6 py-4">指示と監督が中心</td>
+                            </tr>
+                            <tr class="bg-white border-b hover:bg-gray-100">
+                                <td class="px-6 py-4 font-bold text-gray-900 whitespace-now-wrap">M2（やや未熟）</td>
+                                <td class="px-6 py-4">能力は低いが、意欲は高い</td>
+                                <td class="px-6 py-4 font-bold text-blue-600">S2（説得的）</td>
+                                <td class="px-6 py-4">指示と支援を両方行う</td>
+                            </tr>
+                            <tr class="bg-white border-b hover:bg-gray-100">
+                                <td class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">M3（やや成熟）</td>
+                                <td class="px-6 py-4">能力は高いが、意欲が不安定</td>
+                                <td class="px-6 py-4 font-bold text-blue-600">S3（参加的）</td>
+                                <td class="px-6 py-4">支援と対話が中心</td>
+                            </tr>
+                            <tr class="bg-white hover:bg-gray-100">
+                                <td class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">M4（成熟）</td>
+                                <td class="px-6 py-4">能力も意欲も高い</td>
+                                <td class="px-6 py-4 font-bold text-blue-600">S4（委任的）</td>
+                                <td class="px-6 py-4">ほとんど介入しない</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 部下の成熟度診断セクション -->
+        <div class="space-y-6">
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-custom-blue-dark">部下の成熟度診断</h2>
+                <p class="mb-4 text-sm text-gray-600">
+                    最も当てはまるものを1つ選択してください。
+                </p>
+                <div class="space-y-4 mb-6">
+                    <div class="flex items-start">
+                        <input type="radio" name="maturity" id="maturity-m1" value="M1" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full" checked>
+                        <label for="maturity-m1" class="ml-3 text-gray-700">
+                            <strong>M1（未熟）：</strong>新しいタスクに対して、スキルや経験がほとんどなく、自信もなさそうに見える。
+                        </label>
+                    </div>
+                    <div class="flex items-start">
+                        <input type="radio" name="maturity" id="maturity-m2" value="M2" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                        <label for="maturity-m2" class="ml-3 text-gray-700">
+                            <strong>M2（やや未熟）：</strong>やる気はあるが、どう進めたらいいか分からず、少し不安そうに見える。
+                        </label>
+                    </div>
+                    <div class="flex items-start">
+                        <input type="radio" name="maturity" id="maturity-m3" value="M3" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                        <label for="maturity-m3" class="ml-3 text-gray-700">
+                            <strong>M3（やや成熟）：</strong>タスクの経験は豊富でスキルも十分にあるが、最近は自信をなくしたり、モチベーションが下がっているように見える。
+                        </label>
+                    </div>
+                    <div class="flex items-start">
+                        <input type="radio" name="maturity" id="maturity-m4" value="M4" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                        <label for="maturity-m4" class="ml-3 text-gray-700">
+                            <strong>M4（成熟）：</strong>ほとんどのタスクを自律的にこなし、新しい役割にも前向きで、自信に満ちている。
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- リーダーシップ・スタイル診断セクション -->
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-custom-blue-dark">あなたのリーダーシップ・スタイル診断</h2>
+                <p class="mb-4 text-sm text-gray-600">
+                    以下の各質問で、あなたの行動に最も近いものを1つ選んでください。
+                </p>
+                <div class="space-y-6">
+                    <!-- 質問1 -->
+                    <div>
+                        <p class="mb-2 text-gray-700 font-medium">Q1. 部下に新しいタスクを任せる際、あなたはどのように関わりますか？</p>
+                        <div class="space-y-2">
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q1" value="S1" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full" checked>
+                                <span class="ml-2 text-gray-700">タスクの進め方、期限、役割を細かく指示する。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q1" value="S2" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">タスクの重要性を説明し、部下の話を聞きながら進め方を提案する。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q1" value="S3" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">進め方を部下と一緒に考え、意思決定を任せる。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q1" value="S4" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">タスクの概要を伝えた後、全面的に任せる。</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 質問2 -->
+                    <div>
+                        <p class="mb-2 text-gray-700 font-medium">Q2. 部下の仕事の進捗について、どのように確認しますか？</p>
+                        <div class="space-y-2">
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q2" value="S1" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full" checked>
+                                <span class="ml-2 text-gray-700">定期的に進捗を確認し、細部までチェックする。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q2" value="S2" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">定期的にミーティングを設け、課題や疑問をヒアリングする。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q2" value="S3" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">何か困ったことがないか、部下から相談されるのを待つ。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q2" value="S4" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">基本的に報告を求めず、完了報告を待つ。</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 質問3 -->
+                    <div>
+                        <p class="mb-2 text-gray-700 font-medium">Q3. 部下がミスをした時、どのように対応しますか？</p>
+                        <div class="space-y-2">
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q3" value="S1" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full" checked>
+                                <span class="ml-2 text-gray-700">ミスの原因を特定し、次回の具体的な改善点を指示する。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q3" value="S2" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">ミスの影響を説明し、励ましながら修正方法を一緒に考える。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q3" value="S3" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">部下に自分でミスを分析させ、解決策を導き出させる。</span>
+                            </label>
+                            <label class="inline-flex items-start">
+                                <input type="radio" name="q3" value="S4" class="form-radio mt-1 text-blue-600 h-5 w-5 rounded-full">
+                                <span class="ml-2 text-gray-700">大きな問題でなければ、部下が自分で解決できると信頼して見守る。</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 診断ボタン -->
+        <div class="mt-8 text-center flex justify-center space-x-4">
+            <button id="diagnoseBtn" class="bg-custom-blue text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-700 transition duration-300">
+                診断する
+            </button>
+            <button id="shareBtn" class="bg-gray-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-600 transition duration-300">
+                共有
+            </button>
+        </div>
+
+        <!-- 診断結果表示セクション -->
+        <div id="resultSection" class="mt-10 p-6 rounded-2xl bg-blue-50 border border-blue-200 hidden">
+            <h3 class="text-xl font-bold text-center mb-4 text-blue-800">診断結果</h3>
+            <div id="maturityResult" class="mb-4">
+                <div id="maturityLevel" class="text-xl font-bold text-blue-600"></div>
+                <div id="leadershipStyle" class="text-lg text-gray-800"></div>
+                <div id="styleDescription" class="mt-2 text-sm text-gray-600"></div>
+            </div>
+            <div id="managerStyleResult">
+                <div id="managerStyleTitle" class="text-xl font-bold text-green-600"></div>
+                <div id="managerStyleDescription" class="mt-2 text-sm text-gray-600"></div>
+            </div>
+            <div id="alignmentMessage" class="mt-6 p-4 rounded-xl text-sm hidden"></div>
+            <div id="alignmentDetail" class="mt-4 text-gray-700"></div>
+        </div>
+
+        <!-- ケーススタディ・クイズセクション -->
+        <div class="mt-12 space-y-8">
+            <h2 class="text-2xl font-bold text-center text-custom-blue-dark">ケーススタディ・クイズ</h2>
+            <p class="text-center text-gray-600">
+                各ケースの部下に対して、あなたがどのような関わり方をしますか？以下に具体的に記述してみましょう。
+            </p>
+
+            <!-- M1ケース -->
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold text-blue-800 mb-2">ケース1：M1（未熟）の部下</h3>
+                <p id="case1" class="text-gray-700 mb-2">
+                    新入社員のAさんは、新しいデータ入力タスクを任されました。彼は何度も「これで合っていますか？」と質問し、自分で判断して進めることに自信がない様子です。
+                </p>
+                <div class="text-sm text-gray-500 mb-2">
+                    <strong>記入例：</strong>「まず、この手順書を一緒に確認しよう。分からなければすぐに聞いてね。終わったら進捗を報告して。」
+                </div>
+                <textarea id="answer1" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="あなたの回答を記入してください。"></textarea>
+                <button id="quiz1Btn" class="mt-4 bg-custom-blue text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300">
+                    AIフィードバック
+                </button>
+                <div id="quiz1Result" class="mt-4 p-3 rounded-xl hidden"></div>
+                <div id="quiz1Feedback" class="mt-4 p-4 rounded-xl hidden"></div>
+            </div>
+
+            <!-- M2ケース -->
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold text-blue-800 mb-2">ケース2：M2（やや未熟）の部下</h3>
+                <p id="case2" class="text-gray-700 mb-2">
+                    中堅社員のBさんは、新しいプレゼン資料作成ツールに意欲満々です。しかし、操作方法が分からず、何度もエラーを起こしています。
+                </p>
+                <div class="text-sm text-gray-500 mb-2">
+                    <strong>記入例：</strong>「頑張っているね。このツールを使うと、どんなことができるか一緒に確認しようか。まずはこの機能から試してみよう。」
+                </div>
+                <textarea id="answer2" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="あなたの回答を記入してください。"></textarea>
+                <button id="quiz2Btn" class="mt-4 bg-custom-blue text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300">
+                    AIフィードバック
+                </button>
+                <div id="quiz2Result" class="mt-4 p-3 rounded-xl hidden"></div>
+                <div id="quiz2Feedback" class="mt-4 p-4 rounded-xl hidden"></div>
+            </div>
+
+            <!-- M3ケース -->
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold text-blue-800 mb-2">ケース3：M3（やや成熟）の部下</h3>
+                <p id="case3" class="text-gray-700 mb-2">
+                    ベテラン社員のCさんは、常に高いパフォーマンスを出していましたが、最近は会議で発言せず、元気がない様子です。新しいプロジェクトも「気が進まない」と消極的です。
+                </p>
+                <div class="text-sm text-gray-500 mb-2">
+                    <strong>記入例：</strong>「最近、どう？何か気になることはないかな？もしよかったら、少し話さないか。」
+                </div>
+                <textarea id="answer3" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="あなたの回答を記入してください。"></textarea>
+                <button id="quiz3Btn" class="mt-4 bg-custom-blue text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300">
+                    AIフィードバック
+                </button>
+                <div id="quiz3Result" class="mt-4 p-3 rounded-xl hidden"></div>
+                <div id="quiz3Feedback" class="mt-4 p-4 rounded-xl hidden"></div>
+            </div>
+
+            <!-- M4ケース -->
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold text-blue-800 mb-2">ケース4：M4（成熟）の部下</h3>
+                <p id="case4" class="text-gray-700 mb-2">
+                    チームの中心メンバーであるDさんは、常に期待以上の成果を出しており、新しいタスクにも積極的に挑戦したがっています。
+                </p>
+                <div class="text-sm text-gray-500 mb-2">
+                    <strong>記入例：</strong>「このプロジェクト、君に任せたい。進め方は君に任せるよ。何かあればいつでも相談してくれ。」
+                </div>
+                <textarea id="answer4" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="あなたの回答を記入してください。"></textarea>
+                <button id="quiz4Btn" class="mt-4 bg-custom-blue text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300">
+                    AIフィードバック
+                </button>
+                <div id="quiz4Result" class="mt-4 p-3 rounded-xl hidden"></div>
+                <div id="quiz4Feedback" class="mt-4 p-4 rounded-xl hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 共有モーダル -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content rounded-3xl shadow-lg border border-gray-200">
+            <span class="close-button">&times;</span>
+            <h3 class="text-2xl font-bold mb-4 text-custom-blue-dark">共有について</h3>
+            <p class="text-gray-700 mb-4">
+                URLをクリップボードにコピーしました。
+            </p>
+            <p class="text-red-600 font-bold mb-4">
+                注意：このURLはローカルファイル用です。
+            </p>
+            <p class="text-gray-600 mb-6">
+                このツールを他の人と共有するには、ファイルをGitHub Pagesなどのウェブホスティングサービスにアップロードしてください。
+            </p>
+            <button id="okBtn" class="bg-custom-blue text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300">OK</button>
+        </div>
+    </div>
+
+    <!-- JavaScript for Diagnosis Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const styleDetails = {
+                'S1': {
+                    name: 'S1（教示的スタイル）',
+                    description: '指示的行動が高く、支援的行動が低いスタイルです。',
+                    recommended: 'このスタイルは、**能力も意欲も低い**M1（未熟）の部下にとって非常に効果的です。',
+                    why: 'M1の部下は、「何から手をつけていいか分からない」という能力の低さと、「自分にできるか自信がない」という意欲の低さを抱えています。S1スタイルは、具体的な手順と明確な目標を示すことで、部下の不安を取り除き、行動を促すことができます。',
+                    examples: '具体的な指示と密な監督は、タスクを細かく分解し、以下の5W1Hを明確に伝えることです。<br><strong>What (何を)</strong>: 最終的な成果物を明確にする。<br><strong>How (どのように)</strong>: 具体的な手順や使用ツールを示す。<br><strong>When (いつまでに)</strong>: 中間チェックポイントと最終期限を設定する。<br>また、頻繁に進捗を確認し、すぐにフィードバックを与えることで、部下は安心感を得ることができます。'
+                },
+                'S2': {
+                    name: 'S2（説得的スタイル）',
+                    description: '指示的行動も支援的行動も高いスタイルです。',
+                    recommended: 'このスタイルは、**能力は低いが意欲は高い**M2（やや未熟）の部下にとって非常に効果的です。',
+                    why: 'M2の部下は、やる気はあるものの、スキルや経験が不足しているため、どう進めればいいか分からず、自信を失いやすい状態です。S2スタイルは、具体的な指示で行動を導きつつ、対話を通じて部下の意欲を維持させ、自信を持たせることに役立ちます。',
+                    examples: '具体的な指示を出しつつ、部下の意見や不安を丁寧にヒアリングし、「なぜこのタスクが重要なのか」を説明することで、納得感とモチベーションを高めます。また、小さな成功体験を褒め、自信をつけさせることが重要です。'
+                },
+                'S3': {
+                    name: 'S3（参加的スタイル）',
+                    description: '指示的行動が低く、支援的行動が高いスタイルです。',
+                    recommended: 'このスタイルは、**能力は高いが意欲が不安定**なM3（やや成熟）の部下にとって非常に効果的です。',
+                    why: 'M3の部下は、スキルは十分にあるものの、何らかの理由で自信を失ったり、モチベーションが低下したりしている状態です。S3スタイルは、部下の意見やアイデアを尊重し、意思決定に巻き込むことで、再び自信と責任感を取り戻させることに役立ちます。',
+                    examples: 'タスクの進め方や問題解決策を部下と一緒に考え、決定を委ねます。頻繁な進捗確認は行わず、困ったときにいつでも相談に乗る姿勢を示し、自律性を尊重します。'
+                },
+                'S4': {
+                    name: 'S4（委任的スタイル）',
+                    description: '指示的行動も支援的行動も低いスタイルです。',
+                    recommended: 'このスタイルは、**能力も意欲も高い**M4（成熟）の部下にとって非常に効果的です。',
+                    why: 'M4の部下は、自律的にタスクをこなし、責任感も高いプロフェッショナルです。S4スタイルは、細かな指示や過剰な支援をせずに権限を完全に委譲することで、部下の自立心を尊重し、最大限のパフォーマンスを引き出すことができます。',
+                    examples: '目標と期限だけを明確に伝えたら、後は部下に全面的に任せます。定期的な報告を求めず、何か問題が発生したときに部下から相談されるのを待ちます。リーダーは「いつでも頼っていい存在」として信頼関係を築くことに集中します。'
+                }
+            };
+            
+            document.getElementById('diagnoseBtn').addEventListener('click', () => {
+                // 部下の成熟度診断
+                const maturity = document.querySelector('input[name="maturity"]:checked').value;
+
+                let maturityLevel, recommendedStyle, recommendedDescription;
+
+                // 部下の成熟度と推奨スタイルを判断
+                if (maturity === 'M1') {
+                    maturityLevel = 'M1（未熟）';
+                    recommendedStyle = 'S1（教示的スタイル）';
+                    recommendedDescription = 'この段階の部下には、具体的で詳細な指示と密な監督が必要です。';
+                } else if (maturity === 'M2') {
+                    maturityLevel = 'M2（やや未熟）';
+                    recommendedStyle = 'S2（説得的スタイル）';
+                    recommendedDescription = 'タスクの進め方を具体的に教えながら、やる気を維持させるためのサポートや説得が必要です。';
+                } else if (maturity === 'M3') {
+                    maturityLevel = 'M3（やや成熟）';
+                    recommendedStyle = 'S3（参加的スタイル）';
+                    recommendedDescription = '部下の意見を尊重し、意思決定に巻き込むことで、自信と意欲を高めることが重要です。';
+                } else if (maturity === 'M4') {
+                    maturityLevel = 'M4（成熟）';
+                    recommendedStyle = 'S4（委任的スタイル）';
+                    recommendedDescription = 'この部下には権限を完全に委譲し、見守ることで自律的な成長を促します。';
+                }
+
+                // マネージャーのリーダーシップ・スタイルを診断
+                const q1Answer = document.querySelector('input[name="q1"]:checked').value;
+                const q2Answer = document.querySelector('input[name="q2"]:checked').value;
+                const q3Answer = document.querySelector('input[name="q3"]:checked').value;
+
+                const styleScores = { 'S1': 0, 'S2': 0, 'S3': 0, 'S4': 0 };
+                styleScores[q1Answer]++;
+                styleScores[q2Answer]++;
+                styleScores[q3Answer]++;
+
+                let managerStyle = Object.keys(styleScores).reduce((a, b) => styleScores[a] > styleScores[b] ? a : b);
+                let managerStyleText = styleDetails[managerStyle].name;
+                
+                // 部下の診断結果を表示
+                document.getElementById('maturityLevel').textContent = `成熟度: ${maturityLevel}`;
+                document.getElementById('leadershipStyle').textContent = `推奨リーダーシップ・スタイル: ${recommendedStyle}`;
+                document.getElementById('styleDescription').textContent = recommendedDescription;
+                
+                // マネージャーのスタイルを表示
+                document.getElementById('managerStyleTitle').textContent = `あなたのリーダーシップ・スタイル: ${managerStyleText}`;
+                document.getElementById('managerStyleDescription').textContent = styleDetails[managerStyle].description;
+
+                // スタイルの一致度メッセージと詳細を表示
+                const alignmentMessageDiv = document.getElementById('alignmentMessage');
+                const alignmentDetailDiv = document.getElementById('alignmentDetail');
+                
+                if (recommendedStyle === managerStyleText) {
+                    alignmentMessageDiv.textContent = '素晴らしい！あなたのスタイルは部下の成熟度と一致しています。';
+                    alignmentMessageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-800');
+                    alignmentMessageDiv.classList.add('bg-green-100', 'text-green-800');
+                    alignmentDetailDiv.innerHTML = `
+                        <strong>一致している理由:</strong><br>
+                        ${styleDetails[managerStyle.substring(0, 2)].why}<br><br>
+                        <strong>具体的な行動例:</strong><br>
+                        ${styleDetails[managerStyle.substring(0, 2)].examples}
+                    `;
+                } else {
+                    alignmentMessageDiv.textContent = `注意: あなたのスタイルと推奨されるスタイルは異なっています。`;
+                    alignmentMessageDiv.classList.remove('hidden', 'bg-green-100', 'text-green-800');
+                    alignmentMessageDiv.classList.add('bg-red-100', 'text-red-800');
+                    alignmentDetailDiv.innerHTML = `
+                        <strong>問題点:</strong><br>
+                        あなたのスタイル（${managerStyleText}）は、${maturityLevel}の部下が本来必要とする${recommendedStyle}とは異なります。このギャップが、部下の成長を妨げたり、モチベーション低下につながったりする可能性があります。<br><br>
+                        <strong>改善策:</strong><br>
+                        部下の成長を促すために、まずは推奨される${recommendedStyle}を意識的に取り入れてみましょう。<br>
+                        <strong>推奨スタイル（${recommendedStyle}）の具体的な行動:</strong><br>
+                        ${styleDetails[recommendedStyle.substring(0, 2)].examples}
+                    `;
+                }
+
+                document.getElementById('resultSection').classList.remove('hidden');
+            });
+
+            // ケーススタディ・クイズのフィードバック詳細
+            const quizFeedback = {
+                'quiz1': {
+                    correctStyle: 'S1',
+                    reason: 'M1の部下は、タスクに必要なスキルも自信も不足しています。この状態では、明確な指示と具体的な行動指針が最も必要です。',
+                    goodPattern: '<strong>GOODパターン（S1）:</strong><br>「Aさん、このデータ入力はまずこのフォルダからこのファイルをコピーして、次にこのテンプレートを開いてください。終わったら一度私に声をかけてね。」と、タスクを細分化して具体的に指示し、細かくサポートする。',
+                    badPattern: '<strong>BADパターン（S3/S4）:</strong><br>「このタスク、どう進めたい？」と質問したり、「自由にやってみて」と任せたりすると、部下はさらに混乱し、不安になってしまう。'
+                },
+                'quiz2': {
+                    correctStyle: 'S2',
+                    reason: 'M2の部下は、意欲は高いものの、能力が不足しています。この意欲を維持させつつ、具体的なスキルを教えることが重要です。',
+                    goodPattern: '<strong>GOODパターン（S2）:</strong><br>「新しいツールに挑戦してくれて嬉しいよ。このツールの良い点は、〇〇ができることだよ。一緒にやってみようか。まずはここをクリックして…」と、ツールの利点を伝えながら、隣で具体的に操作方法を教える。',
+                    badPattern: '<strong>BADパターン（S1）:</strong><br>「マニュアルを読んでおいて」と突き放したり、細かすぎる指示だけを与えたりすると、部下のやる気が失われる可能性がある。'
+                },
+                'quiz3': {
+                    correctStyle: 'S3',
+                    reason: 'M3の部下は、能力は十分にあるものの、何らかの理由で意欲が低下しています。この状態では、指示よりも対話と心理的なサポートが必要です。',
+                    goodPattern: '<strong>GOODパターン（S3）:</strong><br>「最近、どう？何か気になることはないかな？もしよかったら、少し話を聞くよ。新しいプロジェクト、君の力が必要なんだが、何か気がかりなことはないかな？」と、率直に話を聞き、一緒に解決策を探る。',
+                    badPattern: '<strong>BADパターン（S1）:</strong><br>「仕事だから仕方ないだろう。早く取り掛かってくれ」と指示だけすると、部下の心はさらに閉ざされてしまう。'
+                },
+                'quiz4': {
+                    correctStyle: 'S4',
+                    reason: 'M4の部下は、能力も意欲も十分に高いため、細かな指示や介入は彼らの自律性を阻害します。全権を委譲し、見守ることが最善です。',
+                    goodPattern: '<strong>GOODパターン（S4）:</strong><br>「このプロジェクト、君に任せたい。ゴールは〇〇。期限は△△。困ったことがあればいつでも頼ってほしいけど、基本的には君に任せるよ。」と、信頼と期待を伝え、権限を委譲する。',
+                    badPattern: '<strong>BADパターン（S1/S2）:</strong><br>「毎日進捗を報告してね」と細かく確認したり、指示を出したりすると、部下は「信頼されていない」と感じ、モチベーションが低下する。'
+                }
+            };
+            
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`quiz${i}Btn`).addEventListener('click', async () => {
+                    const answerId = `answer${i}`;
+                    const resultDivId = `quiz${i}Result`;
+                    const feedbackDivId = `quiz${i}Feedback`;
+                    const answer = document.getElementById(answerId).value.trim();
+                    const resultDiv = document.getElementById(resultDivId);
+                    const feedbackDiv = document.getElementById(feedbackDivId);
+                    
+                    if (answer === '') {
+                        resultDiv.textContent = '記入してください。';
+                        resultDiv.className = 'mt-4 p-3 rounded-xl bg-yellow-100 text-yellow-800';
+                        resultDiv.classList.remove('hidden');
+                        feedbackDiv.classList.add('hidden');
+                        return;
+                    }
+
+                    // Loading State
+                    feedbackDiv.innerHTML = 'フィードバックを生成中です...';
+                    feedbackDiv.className = 'mt-4 p-4 rounded-xl bg-gray-100 text-gray-700';
+                    feedbackDiv.classList.remove('hidden');
+                    
+                    resultDiv.innerHTML = `
+                        <p class="mb-2"><strong>推奨スタイル：</strong>${styleDetails[quizFeedback[`quiz${i}`].correctStyle].name}</p>
+                        <p class="mt-2">${quizFeedback[`quiz${i}`].reason}</p>
+                        <div class="mt-4 p-3 rounded-lg bg-green-100 text-green-800 border border-green-200">
+                            ${quizFeedback[`quiz${i}`].goodPattern}
+                        </div>
+                        <div class="mt-2 p-3 rounded-lg bg-red-100 text-red-800 border border-red-200">
+                            ${quizFeedback[`quiz${i}`].badPattern}
+                        </div>
+                    `;
+                    resultDiv.classList.remove('hidden');
+
+                    const systemPrompt = "あなたは世界的に有名なリーダーシップコーチであり、SL理論（状況対応型リーダーシップ理論）の専門家です。与えられたケーススタディと、それに対するユーザーの回答を分析し、ユーザーの回答がSL理論のどのスタイルに近いか、なぜそれが効果的（または非効果的）かを、具体的かつ建設的なフィードバックとして日本語で提供してください。回答は、必ずJSONオブジェクト形式で、'good_points'と'improvement_points'の2つのキーを持ち、それぞれの値にフィードバックを簡潔な文章で記述してください。";
+                    const userQuery = `ケーススタディの状況: ${document.getElementById(`case${i}`).textContent}\n\nあなたの回答（マネージャーとしてどのような関わり方をしますか？）：${answer}\n\nSL理論における推奨スタイル：${styleDetails[quizFeedback[`quiz${i}`].correctStyle].name}\n\nこの回答に対するフィードバックを、SL理論の観点から具体的に、建設的に記述してください。`;
+
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                    const payload = {
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: {
+                            parts: [{ text: systemPrompt }]
+                        },
+                        generationConfig: {
+                          responseMimeType: "application/json",
+                          responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                              "good_points": { "type": "STRING" },
+                              "improvement_points": { "type": "STRING" }
+                            }
+                          }
+                        }
+                    };
+
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`API error: ${response.status} ${response.statusText}`);
+                        }
+
+                        const result = await response.json();
+                        const feedbackContent = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        
+                        if (!feedbackContent) {
+                            throw new Error("Feedback content is missing from API response.");
+                        }
+
+                        const parsedFeedback = JSON.parse(feedbackContent);
+                        
+                        feedbackDiv.innerHTML = `
+                            <p class="font-bold text-gray-800 mb-2">あなたの回答への個別フィードバック</p>
+                            <div class="mt-2 p-3 rounded-lg bg-green-100 text-green-800 border border-green-200">
+                                <p class="font-semibold">良い点：</p>
+                                <p>${parsedFeedback.good_points}</p>
+                            </div>
+                            <div class="mt-2 p-3 rounded-lg bg-red-100 text-red-800 border border-red-200">
+                                <p class="font-semibold">改善点：</p>
+                                <p>${parsedFeedback.improvement_points}</p>
+                            </div>
+                        `;
+                        feedbackDiv.className = 'mt-4 p-4 rounded-xl bg-blue-100 text-blue-800 border border-blue-200';
+
+                    } catch (error) {
+                        console.error("Failed to fetch from Gemini API:", error);
+                        feedbackDiv.innerHTML = `フィードバックの生成中にエラーが発生しました。もう一度お試しください。`;
+                        feedbackDiv.className = 'mt-4 p-4 rounded-xl bg-red-100 text-red-800 border border-red-200';
+                    }
+                });
+            }
+
+            // 共有ボタンの機能
+            const shareBtn = document.getElementById('shareBtn');
+            const shareModal = document.getElementById('shareModal');
+            const closeModalBtn = document.querySelector('#shareModal .close-button');
+            const okBtn = document.getElementById('okBtn');
+
+            shareBtn.addEventListener('click', async () => {
+                const url = window.location.href;
+                
+                // モダンな Clipboard API を使用
+                try {
+                    await navigator.clipboard.writeText(url);
+                    console.log('URL copied to clipboard using Clipboard API');
+                } catch (err) {
+                    console.error('Failed to copy using Clipboard API. Falling back to execCommand.', err);
+                    // 互換性確保のため、古い方法をフォールバックとして使用
+                    const el = document.createElement('textarea');
+                    el.value = url;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                }
+
+                shareModal.style.display = 'block';
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                shareModal.style.display = 'none';
+            });
+
+            okBtn.addEventListener('click', () => {
+                shareModal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === shareModal) {
+                    shareModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研修転移ケーススタディ（課長編）</title>
+    <!-- Tailwind CSSをCDNで読み込み -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .bg-custom-blue {
+            background-color: #2563eb;
+        }
+        .text-custom-blue-dark {
+            color: #1e40af;
+        }
+        .shadow-custom {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex items-center justify-center min-h-screen">
+    <div class="container bg-white p-6 sm:p-10 rounded-3xl shadow-lg border border-gray-200">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-custom-blue-dark mb-4">研修転移ケーススタディ（課長編）</h1>
+        <p class="text-center text-gray-600 mb-8 max-w-lg mx-auto">
+            マネージャーとして、部下の学びを成果に変えよう
+        </p>
+
+        <!-- 研修転移の概念説明 -->
+        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-200 mb-6">
+            <h2 class="text-xl font-bold text-blue-800 mb-4">研修転移とは？</h2>
+            <p class="text-gray-600 leading-relaxed">
+                **研修転移**とは、研修で学んだ知識やスキルを、実際の業務環境で活用し、定着させるプロセスです。研修自体がどんなに優れていても、受講者が学んだことを職場で実践できなければ、研修の投資対効果（ROI）はゼロに近くなってしまいます。研修の真の目的は、単に知識を伝えることではなく、受講者の行動を変え、組織全体のパフォーマンスを向上させることです。そのためには、研修後のサポートや、実践を促す環境づくりが不可欠です。
+                <br><br>
+                例えば、部下が「リーダーシップ研修」に参加したとします。研修後、あなたが率先してチーム内で小さなリーダーシップを発揮する機会を与えたり、具体的なフィードバックを行ったりすることで、部下の学びを実際の業務における行動へとつなげることができます。このようなマネジメントの関わりこそが、研修転移を成功させる鍵となります。
+            </p>
+            <h3 class="text-xl font-bold text-gray-800 mt-8 mb-4">マネージャーの関わり方比較</h3>
+            <div class="relative overflow-x-auto shadow-md rounded-lg">
+                <table class="w-full text-sm text-left text-gray-500 rounded-lg">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">項目</th>
+                            <th scope="col" class="px-6 py-3">研修転移を知っているマネージャー</th>
+                            <th scope="col" class="px-6 py-3">研修転移を知らないマネージャー</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white border-b hover:bg-gray-100">
+                            <td class="px-6 py-3">研修前（事前準備）</td>
+                            <td class="px-6 py-3">研修の目的と期待を伝え、受講者の意欲を高める。</td>
+                            <td class="px-6 py-3">「会社の命令だから」と一方的に参加を命じる。</td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b hover:bg-gray-100">
+                            <td class="px-6 py-3">研修直後（声かけ）</td>
+                            <td class="px-6 py-3">「何か新しい発見はあった？」と具体的に質問し、アウトプットを促す。</td>
+                            <td class="px-6 py-3">「お疲れさま」の一言で終わらせ、研修の話をしない。</td>
+                        </tr>
+                        <tr class="bg-white border-b hover:bg-gray-100">
+                            <td class="px-6 py-3">研修後（フォロー）</td>
+                            <td class="px-6 py-3">学んだスキルを活かす機会を意図的に作り、実践をサポートする。</td>
+                            <td class="px-6 py-3">研修は研修、仕事は仕事と区別する。</td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b hover:bg-gray-100">
+                            <td class="px-6 py-3">評価時（フィードバック）</td>
+                            <td class="px-6 py-3">研修で学んだ内容を業務でどう活かしているかを具体的に評価する。</td>
+                            <td class="px-6 py-3">研修内容には触れず、評価項目だけを確認する。</td>
+                        </tr>
+                        <tr class="bg-white border-b hover:bg-gray-100">
+                            <td class="px-6 py-3">マインドセット</td>
+                            <td class="px-6 py-3">研修は成長の機会であり、マネージャーの役割はそれをサポートすることだと考える。</td>
+                            <td class="px-4 py-3">研修は単なる福利厚生や業務外のイベントだと考える。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ケーススタディ一覧 -->
+        <div id="case-studies-container" class="space-y-6">
+            <h2 class="text-2xl font-bold text-center text-custom-blue-dark mb-4">ケーススタディ・ワーク</h2>
+            <!-- JavaScriptでケーススタディが挿入されます -->
+        </div>
+    </div>
+    
+    <script>
+        const caseStudies = [
+            {
+                title: `ケーススタディ 1: 研修に行く前`,
+                text: `あなたはチームを率いる課長です。部下のタカシさんが「プレゼンテーション研修」に参加することが決まりました。
+                <br><br>
+                研修の成果を最大化するため、あなたは研修前にどのようなアクションを取りますか？`
+            },
+            {
+                title: `ケーススタディ 2: 研修直後`,
+                text: `タカシさんが研修から戻ってきました。研修で学んだことを業務に活かしてもらうため、あなたはまずどのような声かけを行い、具体的な学びや課題を引き出しますか？`
+            },
+            {
+                title: `ケーススタディ 3: 研修数週間後`,
+                text: `タカシさんが研修で学んだ「ストーリー構成」のスキルを活かして、次の営業プレゼンを準備しています。
+                <br><br>
+                あなたがタカシさんの行動をサポートするために、どのようなフォローアップを行いますか？`
+            },
+            {
+                title: `ケーススタディ 4: 研修転移の定着`,
+                text: `タカシさんのプレゼンが成功し、チーム全体の良い刺激になっています。今後もチームメンバーの学びを業務に定着させるために、あなたはどのような仕組みや環境づくりを考えますか？`
+            },
+        ];
+
+        const caseStudiesContainer = document.getElementById('case-studies-container');
+    
+        function renderCaseStudies() {
+            caseStudiesContainer.innerHTML = '';
+            caseStudies.forEach((cs, index) => {
+                const container = document.createElement('div');
+                container.className = 'bg-gray-50 p-6 rounded-2xl border border-gray-200';
+
+                const heading = document.createElement('h3');
+                heading.className = 'text-xl font-bold text-blue-800 mb-2';
+                heading.textContent = cs.title;
+
+                const text = document.createElement('p');
+                text.className = 'text-gray-700 leading-relaxed text-base mb-4';
+                text.innerHTML = cs.text;
+
+                const textarea = document.createElement('textarea');
+                textarea.id = `textarea-${index}`;
+                textarea.className = 'w-full h-40 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200';
+                textarea.placeholder = 'あなたの回答をここに記述してください...';
+
+                const aiFeedbackButton = document.createElement('button');
+                aiFeedbackButton.className = 'bg-custom-blue text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300 mt-4';
+                aiFeedbackButton.textContent = 'AIフィードバック';
+                aiFeedbackButton.onclick = () => getAiFeedback(index, textarea.value);
+    
+                const feedbackContainer = document.createElement('div');
+                feedbackContainer.id = `feedback-${index}`;
+                feedbackContainer.className = 'bg-blue-100 p-4 rounded-xl hidden mt-4';
+    
+                container.appendChild(heading);
+                container.appendChild(text);
+                container.appendChild(textarea);
+                container.appendChild(aiFeedbackButton);
+                container.appendChild(feedbackContainer);
+    
+                caseStudiesContainer.appendChild(container);
+            });
+        }
+    
+        async function getAiFeedback(index, userInput) {
+            if (userInput.trim() === '') {
+                alert('フィードバックを得るには、何か入力してください。');
+                return;
+            }
+    
+            const feedbackContainer = document.getElementById(`feedback-${index}`);
+            feedbackContainer.classList.remove('hidden');
+            feedbackContainer.classList.remove('bg-red-100', 'text-red-800', 'border-red-200');
+            feedbackContainer.classList.add('bg-gray-100', 'text-gray-700');
+            feedbackContainer.innerHTML = `<p class="text-center">AIがフィードバックを生成中...</p>`;
+    
+            try {
+                const systemPrompt = `
+                    あなたは研修の専門家であり、経験豊富なマネージャーです。
+                    ユーザーからの部下の育成計画やマネジメント行動に対する回答を評価し、具体的なフィードバックを提供してください。
+                    フィードバックは以下のJSON形式で、'good_points'と'improvement_points'の2つのキーを持ち、それぞれの値にフィードバックを簡潔な文章で記述してください。
+                `;
+    
+                const userQuery = userInput;
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "good_points": { "type": "STRING" },
+                                "improvement_points": { "type": "STRING" }
+                            }
+                        }
+                    }
+                };
+    
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`API request failed with status: ${response.status}`);
+                }
+    
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const feedbackContent = candidate.content.parts[0].text;
+                    const parsedFeedback = JSON.parse(feedbackContent);
+                    
+                    feedbackContainer.classList.remove('bg-gray-100', 'text-gray-700');
+                    feedbackContainer.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-200');
+                    feedbackContainer.innerHTML = `
+                        <div class="space-y-2">
+                            <div>
+                                <h4 class="font-bold text-lg mb-1 text-green-700">良い点（Goodポイント）</h4>
+                                <p class="text-gray-700 whitespace-pre-wrap">${parsedFeedback.good_points}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1 text-red-700">改善点（改善ポイント）</h4>
+                                <p class="text-gray-700 whitespace-pre-wrap">${parsedFeedback.improvement_points}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error("Invalid API response format.");
+                }
+            } catch (error) {
+                console.error('API Error:', error);
+                feedbackContainer.classList.remove('bg-gray-100', 'text-gray-700');
+                feedbackContainer.classList.add('bg-red-100', 'text-red-800', 'border-red-200');
+                feedbackContainer.innerHTML = `<p class="text-center">フィードバックの取得に失敗しました。もう一度お試しください。</p>`;
+            }
+        }
+    
+        // 初期表示
+        renderCaseStudies();
+    </script>
+</body>
+</html>

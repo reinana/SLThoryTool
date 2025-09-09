@@ -1,1 +1,1 @@
-# SLThoryTool
+# SLTheoryTool
